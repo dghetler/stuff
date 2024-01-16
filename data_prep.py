@@ -91,7 +91,7 @@ field_names = list(field_lengths.keys())
 possible_unicode_fields = {field: 0 for field in field_names}
 errors = []
 field_count = []
-fields_dtypes = {field: {'dtype': [], 'whole_len': [], 'fract_len': [], 'control_char': False, 'parens': False, 'dollar': False, 'decimals': False, 'dash': False, 'comma': False} for field in field_names}
+fields_dtypes = {field: {'dtype': [], 'whole_len': [], 'fract_len': [], 'control_char': False, 'parens': False, 'dollar': False, 'decimals': False, 'dash': False, 'comma': False, 'sci': False} for field in field_names}
 num_lines = 0
 
 # Function to check data types
@@ -204,6 +204,8 @@ with io.StringIO(new_file) as nfile:
                         fields_dtypes[field_names[j]]['decimals'] = True
                     if ',' in field:
                         fields_dtypes[field_names[j]]['comma'] = True
+                    if 'e' or 'E' in field:
+                        fields_dtypes[field_names[j]]['sci'] = True
                 if fields_dtypes[field_names[j]]['dtype'][0] == '5FLOAT' and clean_field != '' and '..' not in clean_field:
                     dec_string = np.format_float_positional(float(clean_field), trim='0')
                     val = dec_string.split('.')
@@ -338,9 +340,12 @@ for i, field in enumerate(field_names):
             WHEN CHARINDEX('(',[{field}]) > 0 THEN CAST(RTRIM(LTRIM(REPLACE(REPLACE({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2},'(',''),')',''))) AS FLOAT) * -1.0\n \
             ELSE CAST(NULLIF(RTRIM(LTRIM({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2})),'') AS FLOAT)\n \
             END AS DECIMAL({str(decimal_len)},{str(fract_len)})) AS [{field}]")
-        else:
+        elif fields_dtypes[field]['sci']:
             sql_code.append(
                 f"\tCAST(CAST(RTRIM(LTRIM({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2})) AS FLOAT) AS DECIMAL({str(decimal_len)},{str(fract_len)})) AS [{field}]")
+        else:
+            sql_code.append(
+                f"\tCAST(RTRIM(LTRIM({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2})) AS DECIMAL({str(decimal_len)},{str(fract_len)})) AS [{field}]")
     if i != len(field_names)-1:
         sql_code.append(',\n')
     else:
