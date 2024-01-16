@@ -204,7 +204,7 @@ with io.StringIO(new_file) as nfile:
                         fields_dtypes[field_names[j]]['decimals'] = True
                     if ',' in field:
                         fields_dtypes[field_names[j]]['comma'] = True
-                    if 'e' in str(field.lower):
+                    if 'e' in str(field.lower()):
                         fields_dtypes[field_names[j]]['sci'] = True
                 if fields_dtypes[field_names[j]]['dtype'][0] == '5FLOAT' and clean_field != '' and '..' not in clean_field:
                     dec_string = np.format_float_positional(float(clean_field), trim='0')
@@ -334,7 +334,7 @@ for i, field in enumerate(field_names):
     if dtype == '5FLOAT':
         decimal_len = fields_dtypes[field]['whole_len'][0] + fields_dtypes[field]['fract_len'][0] + 1
         fract_len = fields_dtypes[field]["fract_len"][0]
-        if fields_dtypes[field]['parens'] or fields_dtypes[field]['dash']: 
+        if fields_dtypes[field]['parens'] or fields_dtypes[field]['dash']:
             sql_code.append(
                 f"\tCAST(CASE WHEN RTRIM(LTRIM(REPLACE({cr1}[{field}]{cr2},'$',''))) = '-' THEN 0.0\n \
             WHEN CHARINDEX('(',[{field}]) > 0 THEN CAST(RTRIM(LTRIM(REPLACE(REPLACE({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2},'(',''),')',''))) AS FLOAT) * -1.0\n \
@@ -342,7 +342,7 @@ for i, field in enumerate(field_names):
             END AS DECIMAL({str(decimal_len)},{str(fract_len)})) AS [{field}]")
         elif fields_dtypes[field]['sci']:
             sql_code.append(
-                f"\tCASE WHEN [{field}] LIKE '%e-%' THEN CAST(CAST(RTRIM(LTRIM({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2})) AS FLOAT) AS DECIMAL({str(decimal_len)},{str(fract_len)}))\n \
+                f"\tCASE WHEN [{field}] LIKE '%e%' THEN CAST(CAST(RTRIM(LTRIM({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2})) AS FLOAT) AS DECIMAL({str(decimal_len)},{str(fract_len)}))\n \
                 ELSE CAST(RTRIM(LTRIM({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2})) AS DECIMAL({str(decimal_len)},{str(fract_len)}))\n \
                 END AS [{field}]")
         else:
