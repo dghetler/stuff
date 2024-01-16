@@ -204,7 +204,7 @@ with io.StringIO(new_file) as nfile:
                         fields_dtypes[field_names[j]]['decimals'] = True
                     if ',' in field:
                         fields_dtypes[field_names[j]]['comma'] = True
-                    if 'e' in str(field.lower()):
+                    if 'e' in field.lower():
                         fields_dtypes[field_names[j]]['sci'] = True
                 if fields_dtypes[field_names[j]]['dtype'][0] == '5FLOAT' and clean_field != '' and '..' not in clean_field:
                     dec_string = np.format_float_positional(float(clean_field), trim='0')
