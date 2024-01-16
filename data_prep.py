@@ -204,7 +204,7 @@ with io.StringIO(new_file) as nfile:
                         fields_dtypes[field_names[j]]['decimals'] = True
                     if ',' in field:
                         fields_dtypes[field_names[j]]['comma'] = True
-                    if 'e' or 'E' in field:
+                    if 'e' in str(field.lower):
                         fields_dtypes[field_names[j]]['sci'] = True
                 if fields_dtypes[field_names[j]]['dtype'][0] == '5FLOAT' and clean_field != '' and '..' not in clean_field:
                     dec_string = np.format_float_positional(float(clean_field), trim='0')
@@ -342,9 +342,9 @@ for i, field in enumerate(field_names):
             END AS DECIMAL({str(decimal_len)},{str(fract_len)})) AS [{field}]")
         elif fields_dtypes[field]['sci']:
             sql_code.append(
-                f"\tCASE WHEN [{field}] LIKE '%e%' THEN CAST(CAST(RTRIM(LTRIM({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2})) AS FLOAT) AS DECIMAL({str(decimal_len)},{str(fract_len)}))\n \
-                        ELSE CAST(RTRIM(LTRIM({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2})) AS DECIMAL({str(decimal_len)},{str(fract_len)}))
-                        END AS [{field}]")
+                f"\tCASE WHEN [{field}] LIKE '%e-%' THEN CAST(CAST(RTRIM(LTRIM({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2})) AS FLOAT) AS DECIMAL({str(decimal_len)},{str(fract_len)}))\n \
+                ELSE CAST(RTRIM(LTRIM({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2})) AS DECIMAL({str(decimal_len)},{str(fract_len)}))\n \
+                END AS [{field}]")
         else:
             sql_code.append(
                 f"\tCAST(RTRIM(LTRIM({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2})) AS DECIMAL({str(decimal_len)},{str(fract_len)})) AS [{field}]")
