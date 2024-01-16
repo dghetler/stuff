@@ -342,7 +342,9 @@ for i, field in enumerate(field_names):
             END AS DECIMAL({str(decimal_len)},{str(fract_len)})) AS [{field}]")
         elif fields_dtypes[field]['sci']:
             sql_code.append(
-                f"\tCAST(CAST(RTRIM(LTRIM({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2})) AS FLOAT) AS DECIMAL({str(decimal_len)},{str(fract_len)})) AS [{field}]")
+                f"\tCASE WHEN [{field}] LIKE '%e%' THEN CAST(CAST(RTRIM(LTRIM({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2})) AS FLOAT) AS DECIMAL({str(decimal_len)},{str(fract_len)}))\n \
+                        ELSE CAST(RTRIM(LTRIM({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2})) AS DECIMAL({str(decimal_len)},{str(fract_len)}))
+                        END AS [{field}]")
         else:
             sql_code.append(
                 f"\tCAST(RTRIM(LTRIM({co1}{dc1}{dr1}{cr1}[{field}]{cr2}{dr2}{dc2}{co2})) AS DECIMAL({str(decimal_len)},{str(fract_len)})) AS [{field}]")
